@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>FOOT LORD — Player Career</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { display: ['Space Grotesk','sans-serif'], mono: ['JetBrains Mono','monospace'] },
+        }
+      }
+    }
+  </script>
+  <style>
+    *{ -webkit-tap-highlight-color: transparent; }
+    body{ font-family:'Space Grotesk',system-ui,sans-serif; overscroll-behavior:none; }
+    .no-scrollbar::-webkit-scrollbar{display:none}
+    .no-scrollbar{ -ms-overflow-style:none; scrollbar-width:none }
+    .glass{ background: rgba(17,31,53,0.92); backdrop-filter: blur(16px); border:1px solid rgba(255,255,255,0.08); }
+    .glass-strong{ background: rgba(13,26,48,0.96); backdrop-filter: blur(20px); }
+    .pill-green{ background:#00c853; color:#fff; }
+    .pill-red{ background:#ff3b5c; color:#fff; }
+    .pill-yellow{ background:#ffca28; color:#111; }
+    .pill-white{ background:#e8e9ed; color:#111; }
+    .form-W{ background:#00c853; color:#fff; }
+    .form-D{ background:#ffca28; color:#111; }
+    .form-L{ background:#ff3b5c; color:#fff; }
+    .progress-fill{ transition: width 0.6s cubic-bezier(0.4,0,0.2,1); }
+    @keyframes float{ 0%,100%{ transform:translateY(0)} 50%{ transform:translateY(-6px)} }
+    .float{ animation: float 4s ease-in-out infinite; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 antialiased overflow-hidden">
+  <!-- App Container - Mobile First 420px max -->
+  <div id="app" class="max-w-[440px] mx-auto min-h-[100dvh] relative bg-[#070f1e] flex flex-col overflow-hidden shadow-2xl">
+
+    <!-- ===== LANDING SCREEN ===== -->
+    <div id="screen-landing" class="absolute inset-0 z-[100] flex flex-col bg-[#070f1e] ">
+      <div class="flex-1 flex flex-col items-center justify-center px-6 relative overflow-hidden"
+           style="background: linear-gradient(180deg, rgba(7,15,30,0.2) 0%, rgba(7,15,30,0.85) 70%), url('https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?q=80&w=1200') center/cover no-repeat;">
+        <!-- Top icons -->
+        <div class="absolute top-0 left-0 right-0 p-4 flex justify-end gap-3 text-white/80">
+          <span class="text-[10px] font-mono tracking-widest">VIP 👑</span><span>❤️</span><span>⚙️</span>
+        </div>
+        <!-- Logo -->
+        <div class="float mt-8">
+          <div class="w-[120px] h-[120px] mx-auto bg-white rounded-[28px] grid place-items-center shadow-[0_0_40px_rgba(255,255,255,0.15)] border-[6px] border-white">
+            <div class="text-[64px] leading-none">⚽</div>
+          </div>
+          <h1 class="text-[42px] font-black tracking-[-0.04em] leading-[0.9] mt-4 text-center text-white">FOOT<br/>LORD</h1>
+        </div>
+        <!-- Buttons -->
+        <div class="w-full max-w-[300px] mt-10 flex flex-col gap-3">
+          <button id="btn-new-game" class="w-full py-3.5 rounded-full border border-white/30 bg-white/10 backdrop-blur text-white font-bold tracking-[0.12em] text-[13px] hover:bg-white/20 transition">NEW GAME</button>
+          <button id="btn-load-game" class="w-full py-3.5 rounded-full border border-white/40 bg-[#e8e9ed] text-[#111] font-bold tracking-[0.12em] text-[13px] shadow-lg">LOAD GAME</button>
+          <button class="w-full py-3.5 rounded-full border border-white/20 bg-white/5 backdrop-blur text-white/80 font-bold tracking-[0.12em] text-[13px]">UPDATE LOGS</button>
+          <button class="w-full py-3.5 rounded-full border border-white/20 bg-white/5 backdrop-blur text-white/60 font-bold tracking-[0.12em] text-[13px]">EXIT GAME</button>
+        </div>
+        <!-- Social -->
+        <div class="absolute bottom-6 left-0 right-0 flex justify-center gap-5 text-white/50 text-[18px]">
+          <span>📷</span><span>🎮</span><span>🌐</span><span>▶️</span><span>🎵</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CREATE PLAYER SCREEN ===== -->
+    <div id="screen-create" class="hidden absolute inset-0 z-[90] bg-[#070f1e] flex-col overflow-auto">
+      <div class="p-4 flex items-center gap-3 border-b border-white/10 glass-strong sticky top-0 z-10">
+        <button id="btn-create-back" class="w-8 h-8 rounded-full bg-white/10 grid place-items-center">←</button>
+        <h2 class="font-bold tracking-widest text-[13px]">CREATE PLAYER</h2>
+      </div>
+      <div class="p-5 flex flex-col gap-5 pb-24">
+        <div class="grid grid-cols-2 gap-3">
+          <div><label class="text-[10px] tracking-widest text-slate-400 font-mono">FIRST NAME</label><input id="inp-first" class="mt-1 w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-emerald-500" value="Ashim" /></div>
+          <div><label class="text-[10px] tracking-widest text-slate-400 font-mono">LAST NAME</label><input id="inp-last" class="mt-1 w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 text-[14px] outline-none focus:border-emerald-500" value="Kunwar" /></div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div><label class="text-[10px] tracking-widest text-slate-400 font-mono">AGE</label><select id="inp-age" class="mt-1 w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 text-[14px]"><option>16</option><option selected>17</option><option>18</option><option>19</option><option>20</option><option>21</option></select></div>
+          <div><label class="text-[10px] tracking-widest text-slate-400 font-mono">COUNTRY</label><select id="inp-country" class="mt-1 w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 text-[14px]"><option value="NEP">🇳🇵 Nepal</option><option value="ENG" selected>🏴󠁧󠁢󠁥󠁮󠁧󠁿 England</option><option value="ESP">🇪🇸 Spain</option><option value="FRA">🇫🇷 France</option><option value="BRA">🇧🇷 Brazil</option><option value="ARG">🇦🇷 Argentina</option></select></div>
+          <div><label class="text-[10px] tracking-widest text-slate-400 font-mono">FOOT</label><select id="inp-foot" class="mt-1 w-full bg-slate-900 border border-white/10 rounded-xl px-3 py-2.5 text-[14px]"><option>Right</option><option>Left</option></select></div>
+        </div>
+        <div><label class="text-[10px] tracking-widest text-slate-400 font-mono">POSITION</label><div class="mt-2 grid grid-cols-5 gap-2">
+          <button data-pos="ST" class="pos-btn py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-[12px]">ST</button>
+          <button data-pos="LW" class="pos-btn py-2.5 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[12px]">LW</button>
+          <button data-pos="RW" class="pos-btn py-2.5 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[12px]">RW</button>
+          <button data-pos="CM" class="pos-btn py-2.5 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[12px]">CM</button>
+          <button data-pos="CB" class="pos-btn py-2.5 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[12px]">CB</button>
+        </div></div>
+        <div class="glass rounded-2xl p-4">
+          <div class="flex items-center gap-4">
+            <div class="w-16 h-16 rounded-2xl bg-slate-800 grid place-items-center text-2xl font-black text-emerald-400" id="preview-avatar">AK</div>
+            <div><div class="font-bold" id="preview-name">Ashim Kunwar</div><div class="text-[12px] text-slate-400 font-mono" id="preview-meta">🇳🇵 NEP • 17y • ST • 65 OVR</div><div class="mt-1 flex gap-1"><span class="text-[10px] px-2 py-0.5 rounded-full bg-white/10">POT 86</span><span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400">3 SP</span></div></div>
+          </div>
+          <div class="mt-4 grid grid-cols-2 gap-2 text-[11px] font-mono">
+            <div class="flex justify-between"><span class="text-slate-400">PACE</span><span class="font-bold">68</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">SHOOTING</span><span class="font-bold">65</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">PASSING</span><span class="font-bold">60</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">DRIBBLING</span><span class="font-bold">67</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">DEFENDING</span><span class="font-bold">35</span></div>
+            <div class="flex justify-between"><span class="text-slate-400">PHYSICAL</span><span class="font-bold">62</span></div>
+          </div>
+        </div>
+        <button id="btn-start-career" class="w-full py-4 rounded-full bg-white text-black font-black tracking-widest text-[13px] shadow-xl">START CAREER ▶</button>
+      </div>
+    </div>
+
+    <!-- ===== MAIN GAME ===== -->
+    <div id="screen-game" class="hidden flex-1 flex flex-col min-h-0 relative">
+      <!-- Background stadium -->
+      <div class="absolute inset-0 z-0" style="background: linear-gradient(180deg, rgba(7,15,30,0.75) 0%, rgba(7,15,30,0.92) 50%, rgba(7,15,30,1) 100%), url('https://images.unsplash.com/photo-1489944440615-453fc2b6a9a9?q=80&w=800') center/cover no-repeat;"></div>
+
+      <!-- Top Bar -->
+      <div class="relative z-10 flex items-center justify-between px-4 pt-3 pb-2">
+        <div class="flex items-center gap-2">
+          <div id="ovr-badge" class="bg-[#e8e35a] text-black font-black text-[13px] px-2.5 py-1 rounded-full font-mono">65</div>
+          <div id="energy-badge" class="bg-slate-800/80 border border-white/10 text-white text-[11px] px-2.5 py-1 rounded-full font-mono">⚡ 100%</div>
+        </div>
+        <div class="flex items-center gap-3 text-white/70">
+          <span class="text-[11px] font-mono tracking-widest">VIP 👑</span><span>❤️</span><button id="btn-exit-game">⚙️</button>
+        </div>
+      </div>
+
+      <!-- Manager Favor Bar (Highly Visible) -->
+      <div class="relative z-10 mx-4 mt-1 mb-3 glass rounded-2xl p-3">
+        <div class="flex justify-between items-center mb-2">
+          <span class="text-[10px] tracking-[0.14em] text-slate-400 font-bold">MANAGER FAVOR</span>
+          <span id="favor-status" class="text-[11px] font-bold px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/30">SUBSTITUTE • 55%</span>
+        </div>
+        <div class="relative h-3 bg-black/40 rounded-full overflow-hidden border border-white/5">
+          <div id="favor-fill" class="progress-fill h-full bg-gradient-to-r from-emerald-500 to-emerald-400" style="width:55%"></div>
+          <!-- Milestones -->
+          <div class="absolute top-0 bottom-0 w-0.5 bg-white/20" style="left:39%"></div>
+          <div class="absolute top-0 bottom-0 w-0.5 bg-white/20" style="left:74%"></div>
+        </div>
+        <div class="flex justify-between mt-1.5 text-[9px] font-mono text-slate-500">
+          <span>RESERVE 0-39</span><span>SUB 40-74</span><span>STARTER 75-100</span>
+        </div>
+      </div>
+
+      <!-- Tab Contents Scrollable -->
+      <div class="relative z-10 flex-1 overflow-auto no-scrollbar pb-[90px]">
+
+        <!-- HOME TAB -->
+        <div id="tab-home" class="">
+          <div class="text-center py-2">
+            <div class="font-black text-[18px] tracking-wide flex items-center justify-center gap-2">🛡️ <span id="club-name">REAL MADRID</span></div>
+            <div class="text-[12px] text-slate-400 font-mono mt-0.5" id="club-date">17th July 2026 • Week 1 • Season 2026/27</div>
+          </div>
+
+          <div class="glass rounded-[18px] mx-4 mt-3 overflow-hidden">
+            <div class="text-center text-[11px] tracking-[0.14em] text-slate-400 font-bold py-3">CALENDAR</div>
+            <div id="calendar-row" class="grid grid-cols-3 divide-x divide-white/5 pb-3 px-1">
+              <!-- JS injected -->
+            </div>
+          </div>
+
+          <div class="glass rounded-[18px] mx-4 mt-3">
+            <div class="text-center text-[11px] tracking-[0.14em] text-slate-400 font-bold py-3">CURRENT FORM</div>
+            <div id="form-row" class="flex gap-2 justify-center pb-4">
+              <div class="w-7 h-7 rounded-full bg-emerald-500 grid place-items-center text-[11px] font-black">W</div>
+              <div class="w-7 h-7 rounded-full bg-amber-400 text-black grid place-items-center text-[11px] font-black">D</div>
+              <div class="w-7 h-7 rounded-full bg-emerald-500 grid place-items-center text-[11px] font-black">W</div>
+              <div class="w-7 h-7 rounded-full bg-red-500 grid place-items-center text-[11px] font-black">L</div>
+              <div class="w-7 h-7 rounded-full bg-emerald-500 grid place-items-center text-[11px] font-black">W</div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mx-4 mt-3">
+            <div class="rounded-full py-2.5 text-center pill-green"><div class="text-[9px] tracking-widest opacity-90">BANK BALANCE</div><div class="font-mono font-bold text-[13px]" id="bank-pill">€ 35.6M</div></div>
+            <div class="rounded-full py-2.5 text-center pill-red"><div class="text-[9px] tracking-widest opacity-90">YEARLY PROFIT</div><div class="font-mono font-bold text-[13px]" id="profit-pill">-€ 186M</div></div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 mx-4 mt-3">
+            <button data-go="standings" class="glass rounded-[14px] py-4 flex flex-col items-center gap-1.5 hover:bg-white/5 transition"><span class="text-[20px]">🏆</span><span class="text-[10px] tracking-widest font-bold text-slate-400">STANDINGS</span></button>
+            <button data-go="social" class="glass rounded-[14px] py-4 flex flex-col items-center gap-1.5 hover:bg-white/5 transition"><span class="text-[20px]">📱</span><span class="text-[10px] tracking-widest font-bold text-slate-400">SOCIAL</span></button>
+            <button data-go="inbox" class="glass rounded-[14px] py-4 flex flex-col items-center gap-1.5 hover:bg-white/5 transition"><span class="text-[20px]">💬</span><span class="text-[10px] tracking-widest font-bold text-slate-400">MESSAGES</span><span id="inbox-count" class="text-[10px] bg-red-500 text-white px-1.5 py-0.5 rounded-full hidden">0</span></button>
+          </div>
+
+          <div id="last-match-card" class="glass rounded-[16px] mx-4 mt-3 p-3 hidden">
+            <div class="text-[10px] tracking-widest text-slate-400 font-bold">LAST MATCH</div>
+            <div id="last-match-content" class="mt-2 text-[13px]"></div>
+          </div>
+
+          <div class="mx-4 mt-6 mb-2">
+            <button id="btn-proceed" class="w-full py-4 rounded-full bg-[#e8e9ed] text-black font-black tracking-[0.08em] text-[13px] shadow-[0_8px_24px_rgba(0,0,0,0.4)] hover:bg-white transition active:scale-[0.98]">PROCEED TO NEXT MATCH</button>
+            <div class="text-center mt-3 text-[11px] font-mono text-slate-500" id="player-summary">Ashim Kunwar • ST 65 OVR • 0 apps 0G • Real Madrid • 55% trust</div>
+          </div>
+        </div>
+
+        <!-- ATTRIBUTES TAB -->
+        <div id="tab-attributes" class="hidden px-4 pt-2">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="font-black text-[16px]">ATTRIBUTES</h2><span class="text-[11px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2.5 py-1 rounded-full" id="sp-badge">3 SP</span>
+          </div>
+          <div class="glass rounded-2xl p-4 flex gap-4 items-center">
+            <div class="w-16 h-16 rounded-2xl bg-slate-800 grid place-items-center font-black text-xl text-emerald-400" id="attr-avatar">AK</div>
+            <div class="flex-1"><div class="font-bold" id="attr-name">Ashim Kunwar</div><div class="text-[11px] text-slate-400 font-mono" id="attr-meta">17y • ST • Right • 180cm</div>
+              <div class="mt-2 flex gap-2"><div class="flex-1"><div class="text-[9px] text-slate-500 tracking-widest">ENERGY</div><div class="h-1.5 bg-black/40 rounded-full mt-1 overflow-hidden"><div id="energy-fill" class="h-full bg-emerald-500" style="width:100%"></div></div></div><div class="flex-1"><div class="text-[9px] text-slate-500 tracking-widest">FORM</div><div class="h-1.5 bg-black/40 rounded-full mt-1 overflow-hidden"><div id="form-fill" class="h-full bg-blue-500" style="width:65%"></div></div></div></div>
+            </div>
+          </div>
+          <div class="mt-4 grid gap-3" id="attr-list">
+            <!-- JS -->
+          </div>
+          <div class="glass rounded-2xl p-4 mt-4">
+            <div class="text-[11px] tracking-widest font-bold text-slate-400 mb-3">TRAINING FOCUS</div>
+            <div class="grid grid-cols-4 gap-2" id="training-focus">
+              <button data-focus="balanced" class="py-2 rounded-xl bg-white text-black font-bold text-[11px]">BALANCED</button>
+              <button data-focus="pace" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]">PACE</button>
+              <button data-focus="shooting" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]">SHOOTING</button>
+              <button data-focus="passing" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]">PASSING</button>
+              <button data-focus="dribbling" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]">DRIBBLING</button>
+              <button data-focus="defending" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]">DEFENDING</button>
+              <button data-focus="physical" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]">PHYSICAL</button>
+              <button data-focus="gk" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]">GK</button>
+            </div>
+            <div class="mt-3 grid grid-cols-3 gap-2" id="training-intensity">
+              <button data-intensity="low" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-[11px]">LOW +FIT</button>
+              <button data-intensity="normal" class="py-2 rounded-xl bg-white text-black font-bold text-[11px]">NORMAL</button>
+              <button data-intensity="high" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-[11px]">HIGH FAST</button>
+            </div>
+            <div class="mt-2 text-[10px] text-slate-500 font-mono">High = fast growth but -3 fitness & 6% injury risk. Facility 70 = 1.0x growth.</div>
+          </div>
+        </div>
+
+        <!-- CAREER TAB -->
+        <div id="tab-career" class="hidden px-4 pt-2">
+          <h2 class="font-black text-[16px] mb-3">CAREER</h2>
+          <div class="grid grid-cols-2 gap-3">
+            <div class="glass rounded-2xl p-3"><div class="text-[9px] tracking-widest text-slate-400">MARKET VALUE</div><div class="mt-1 pill-green rounded-full py-1.5 text-center font-mono font-bold text-[13px]" id="career-value">€ 2.5M</div></div>
+            <div class="glass rounded-2xl p-3"><div class="text-[9px] tracking-widest text-slate-400">BANK BALANCE</div><div class="mt-1 pill-green rounded-full py-1.5 text-center font-mono font-bold text-[13px]" id="career-bank">€ 35.6M</div></div>
+            <div class="glass rounded-2xl p-3"><div class="text-[9px] tracking-widest text-slate-400">WEEKLY WAGE</div><div class="mt-1 bg-white/10 rounded-full py-1.5 text-center font-mono font-bold text-[13px]" id="career-wage">€ 15k/w</div></div>
+            <div class="glass rounded-2xl p-3"><div class="text-[9px] tracking-widest text-slate-400">CONTRACT</div><div class="mt-1 bg-white/10 rounded-full py-1.5 text-center font-mono font-bold text-[13px]" id="career-contract">3.0 yrs left</div></div>
+          </div>
+          <div class="glass rounded-2xl p-4 mt-3">
+            <div class="flex justify-between items-center"><span class="text-[11px] tracking-widest font-bold text-slate-400">AGENT</span><span id="agent-tier" class="text-[11px] font-mono bg-white/10 px-2 py-1 rounded-full">Bronze • 5% fee</span></div>
+            <div class="mt-3 grid grid-cols-3 gap-2">
+              <button data-agent="bronze" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-[11px]">Bronze 5%</button>
+              <button data-agent="silver" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-[11px]">Silver 8%</button>
+              <button data-agent="gold" class="py-2 rounded-xl bg-slate-800 border border-white/10 text-[11px]">Gold 12%</button>
+            </div>
+            <div class="mt-3 text-[11px] text-slate-400">Agent finds clubs, negotiates wages. Higher tier = better offers but higher fee.</div>
+          </div>
+          <div class="glass rounded-2xl p-4 mt-3">
+            <div class="text-[11px] tracking-widest font-bold text-slate-400 mb-3">TEAM OBJECTIVES</div>
+            <div id="objectives-list" class="grid gap-2">
+              <div class="flex justify-between items-center bg-black/20 rounded-xl px-3 py-2.5"><div><div class="text-[11px] font-bold">LALIGA — TOP 4</div><div class="text-[10px] text-slate-500">SEASON NOT STARTED</div></div><span class="pill-yellow px-2.5 py-1 rounded-full text-[11px] font-bold">65</span></div>
+              <div class="flex justify-between items-center bg-black/20 rounded-xl px-3 py-2.5"><div><div class="text-[11px] font-bold">COPA DEL REY — SEMIFINALS</div><div class="text-[10px] text-slate-500">QUALIFYING ROUND</div></div><span class="pill-yellow px-2.5 py-1 rounded-full text-[11px] font-bold">65</span></div>
+              <div class="flex justify-between items-center bg-black/20 rounded-xl px-3 py-2.5"><div><div class="text-[11px] font-bold">UCL — SEMIFINALS</div></div><span class="pill-yellow px-2.5 py-1 rounded-full text-[11px] font-bold">65</span></div>
+            </div>
+            <div class="mt-4 flex justify-between items-center"><span class="text-[11px] font-bold">BOARD CONFIDENCE</span><span class="pill-yellow px-3 py-1 rounded-full text-[11px] font-bold" id="board-confidence">65</span></div>
+            <button id="btn-request-transfer" class="mt-4 w-full py-3 rounded-full bg-white/10 border border-white/10 font-bold text-[12px] tracking-widest">REQUEST TRANSFER</button>
+          </div>
+        </div>
+
+        <!-- LIFESTYLE TAB -->
+        <div id="tab-lifestyle" class="hidden px-4 pt-2">
+          <h2 class="font-black text-[16px] mb-3">LIFESTYLE</h2>
+          <div class="glass rounded-2xl p-4">
+            <div class="flex justify-between"><div><div class="text-[9px] tracking-widest text-slate-400">CASH</div><div class="font-mono font-bold text-[18px]" id="life-cash">€ 35,600k</div></div><div class="text-right"><div class="text-[9px] tracking-widest text-slate-400">WAGE</div><div class="font-mono font-bold" id="life-wage">€ 15k/w</div><div class="text-[10px] text-slate-500" id="life-followers">12,345 followers</div></div></div>
+            <div class="mt-3 h-1 bg-black/40 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:60%"></div></div>
+          </div>
+          <div class="mt-4">
+            <div class="text-[11px] tracking-widest font-bold text-slate-400 mb-2">HOUSES</div>
+            <div id="houses-list" class="grid gap-2"></div>
+          </div>
+          <div class="mt-4">
+            <div class="text-[11px] tracking-widest font-bold text-slate-400 mb-2">CARS</div>
+            <div id="cars-list" class="grid gap-2"></div>
+          </div>
+          <div class="mt-4">
+            <div class="text-[11px] tracking-widest font-bold text-slate-400 mb-2">INVESTMENTS</div>
+            <div id="invest-list" class="grid gap-2"></div>
+          </div>
+        </div>
+
+        <!-- HUB TAB -->
+        <div id="tab-hub" class="hidden px-4 pt-2">
+          <div class="text-center mb-4"><h2 class="font-black text-[18px]">HUB</h2><div class="text-[12px] text-slate-400">Explore the game world</div></div>
+          <div id="hub-cards" class="grid gap-3 pb-4">
+            <!-- JS -->
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Nav -->
+      <div class="absolute bottom-0 left-0 right-0 z-20 bg-[#0a1426] border-t border-white/5 grid grid-cols-5 px-1 pt-2 pb-3">
+        <button data-tab="home" class="tab-btn flex flex-col items-center gap-1 py-2 rounded-xl bg-white text-black"><span class="text-[18px]">🏠</span><span class="text-[9px] font-bold tracking-widest">HOME</span></button>
+        <button data-tab="attributes" class="tab-btn flex flex-col items-center gap-1 py-2 rounded-xl text-slate-500"><span class="text-[18px]">👥</span><span class="text-[9px] font-bold tracking-widest">TEAM</span></button>
+        <button data-tab="career" class="tab-btn flex flex-col items-center gap-1 py-2 rounded-xl text-slate-500"><span class="text-[18px]">💼</span><span class="text-[9px] font-bold tracking-widest">CAREER</span></button>
+        <button data-tab="lifestyle" class="tab-btn flex flex-col items-center gap-1 py-2 rounded-xl text-slate-500"><span class="text-[18px]">🏠</span><span class="text-[9px] font-bold tracking-widest">LIFE</span></button>
+        <button data-tab="hub" class="tab-btn flex flex-col items-center gap-1 py-2 rounded-xl text-slate-500"><span class="text-[18px]">🏆</span><span class="text-[9px] font-bold tracking-widest">HUB</span></button>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-root" class="absolute inset-0 z-[200] pointer-events-none"></div>
+
+  </div>
+
+<script>
+// ===== MOCK DATABASES =====
+const CLUBS = [
+  { id:'RMA', name:'REAL MADRID', country:'Spain', league:'LaLiga', color:'#ffffff', prestige:96, budget:350, stadium:'Bernabeu' },
+  { id:'FCB', name:'FC BARCELONA', country:'Spain', league:'LaLiga', color:'#a50044', prestige:94, budget:300, stadium:'Camp Nou' },
+  { id:'BAY', name:'FC BAYERN MÜNCHEN', country:'Germany', league:'Bundesliga', color:'#dc052d', prestige:92, budget:280, stadium:'Allianz' },
+  { id:'MCI', name:'MAN CITY', country:'England', league:'Premier League', color:'#6cabdd', prestige:95, budget:350, stadium:'Etihad' },
+  { id:'ARS', name:'ARSENAL', country:'England', league:'Premier League', color:'#ef0107', prestige:87, budget:200, stadium:'Emirates' },
+  { id:'LIV', name:'LIVERPOOL', country:'England', league:'Premier League', color:'#c8102e', prestige:89, budget:220, stadium:'Anfield' },
+  { id:'PSG', name:'PSG', country:'France', league:'Ligue 1', color:'#004170', prestige:88, budget:300, stadium:'Parc des Princes' },
+  { id:'KTM', name:'KATHMANDU RAYZRS', country:'Nepal', league:'NSL', color:'#003893', prestige:35, budget:0.8, stadium:'Dasharath' },
+];
+
+const FIXTURE_TEMPLATES = [
+  { opponent:'BAY', comp:'UCL', home:true }, { opponent:'ARS', comp:'Friendly', home:false },
+  { opponent:'FCB', comp:'LaLiga', home:true }, { opponent:'MCI', comp:'UCL', home:false },
+  { opponent:'LIV', comp:'LaLiga', home:false }, { opponent:'PSG', comp:'LaLiga', home:true },
+  { opponent:'KTM', comp:'Club World Cup', home:true },
+];
+
+const LIFESTYLE_DB = {
+  houses: [
+    { id:'apt', name:'City Apartment', price:200, morale:2, icon:'🏢' },
+    { id:'house_nepal', name:'House in Kathmandu 🇳🇵', price:150, morale:5, icon:'🏠' },
+    { id:'villa_bali', name:'Villa in Bali', price:600, morale:8, icon:'🏝️' },
+    { id:'pent_london', name:'Penthouse London', price:5000, morale:10, icon:'🏙️' },
+    { id:'mansion_monaco', name:'Mansion Monaco', price:25000, morale:12, icon:'🏰' },
+  ],
+  cars: [
+    { id:'scooter', name:'Scooter', price:3, morale:1, icon:'🛵' },
+    { id:'toyota', name:'Toyota Hilux', price:40, morale:2, icon:'🛻' },
+    { id:'bmw', name:'BMW M4', price:90, morale:4, icon:'🚗' },
+    { id:'lambo', name:'Lamborghini Urus', price:250, morale:7, icon:'🏎️' },
+  ],
+  investments: [
+    { id:'nepal_academy', name:'Nepal Academy 🇳🇵', price:100, ret:0, desc:'+5 youth talent, legend', icon:'⚽' },
+    { id:'restaurant', name:'Restaurant Chain', price:500, ret:5, desc:'5% yearly', icon:'🍜' },
+    { id:'esports', name:'Esports Team', price:1000, ret:12, desc:'12% + followers', icon:'🎮' },
+  ]
+};
+
+const AGENTS = {
+  bronze: { name:'Bronze', fee:5, rep:60 },
+  silver: { name:'Silver', fee:8, rep:75 },
+  gold: { name:'Gold', fee:12, rep:90 },
+};
+
+// ===== GLOBAL GAME STATE =====
+let gameState = {
+  player: {
+    firstName:'Ashim', lastName:'Kunwar', name:'Ashim Kunwar',
+    age:17, country:'NEP', pos:'ST', foot:'Right', height:180,
+    ovr:65, pot:86, energy:100, form:65, morale:75, fitness:92,
+    skillPoints:3,
+    attributes: { pace:68, shooting:65, passing:60, dribbling:67, defending:35, physical:62 }
+  },
+  club: {
+    id:'RMA', name:'REAL MADRID', league:'LaLiga', country:'Spain',
+    wage:15, bank:35.6, profit:-186, marketValue:1.41, contract:3.0, value:2.5,
+    rank:'10th', champRank:'1st / 20', globalRank:'2nd / 508'
+  },
+  manager: { favor:55, status:'Substitute', confidence:65 },
+  calendar: { day:17, month:'July', year:2026, week:1, season:'2026/27' },
+  fixtures: [],
+  form: ['W','D','W','L','W'],
+  matches: [],
+  seasonStats: { apps:0, goals:0, assists:0, rating:0, minutes:0, motm:0 },
+  inbox: [
+    { id:1, from:'Manager', subject:'Welcome!', body:'Show us what you can do in training.', date:'2026-07-17', read:false, type:'welcome' },
+    { id:2, from:'Agent', subject:'New Offer', body:'Your agent found interest from Bayern.', date:'2026-07-18', read:false, type:'transfer' }
+  ],
+  lifestyle: { houses:[], cars:[], investments:[], cash:35600 },
+  agent: { tier:'bronze' },
+  trophies: [],
+  training: { focus:'balanced', intensity:'normal' }
+};
+
+function saveGame(){
+  localStorage.setItem('footlord_simple_save', JSON.stringify(gameState));
+}
+function loadGame(){
+  const s = localStorage.getItem('footlord_simple_save');
+  if(s){ try{ gameState = JSON.parse(s); }catch(e){} }
+}
+
+function initFixtures(){
+  const start = new Date('2026-07-22');
+  gameState.fixtures = FIXTURE_TEMPLATES.map((t,i)=>{
+    const d = new Date(start); d.setDate(start.getDate() + i*9 + Math.floor(Math.random()*4));
+    const opp = CLUBS.find(c=>c.id===t.opponent);
+    return { id:i, date:d, opponent:t.opponent, opponentName:opp?.name||t.opponent, comp:t.comp, home:t.home, played:false, color:opp?.color||'#333' };
+  });
+}
+
+// ===== UI RENDERERS =====
+function renderCalendar(){
+  const row = document.getElementById('calendar-row');
+  if(!row) return;
+  const next3 = gameState.fixtures.filter(f=>!f.played).slice(0,3);
+  row.innerHTML = next3.map(f=>`
+    <div class="text-center py-2 px-1">
+      <div class="text-[11px] font-mono text-slate-400">${f.date.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})}</div>
+      <div class="w-9 h-9 mx-auto my-2 rounded-full grid place-items-center text-[16px] border border-white/10" style="background:${f.color}">${f.opponentName[0]}</div>
+      <div class="text-[11px] font-bold leading-tight truncate">${f.opponentName.substring(0,14)}</div>
+      <div class="text-[10px] text-slate-500 mt-1">${f.home?'🏠':'✈️'}</div>
+    </div>
+  `).join('') || `<div class="col-span-3 text-center py-6 text-slate-500 text-[12px]">Season finished</div>`;
+}
+
+function renderForm(){
+  const row = document.getElementById('form-row');
+  if(!row) return;
+  row.innerHTML = gameState.form.map(r=>`<div class="w-7 h-7 rounded-full grid place-items-center text-[11px] font-black form-${r}">${r}</div>`).join('');
+}
+
+function renderFinances(){
+  const bank = document.getElementById('bank-pill');
+  const profit = document.getElementById('profit-pill');
+  const cbBank = document.getElementById('career-bank');
+  const lifeCash = document.getElementById('life-cash');
+  if(bank) bank.textContent = `€ ${gameState.club.bank.toFixed(1)}M`;
+  if(profit) profit.textContent = `-€ ${Math.abs(gameState.club.profit)}M`;
+  if(cbBank) cbBank.textContent = `€ ${gameState.club.bank.toFixed(1)}M`;
+  if(lifeCash) lifeCash.textContent = `€ ${gameState.lifestyle.cash.toLocaleString()}k`;
+  document.getElementById('club-name').textContent = gameState.club.name;
+  document.getElementById('club-date').textContent = `${gameState.calendar.day}th ${gameState.calendar.month} ${gameState.calendar.year} • Week ${gameState.calendar.week} • Season ${gameState.calendar.season}`;
+  document.getElementById('ovr-badge').textContent = gameState.player.ovr;
+  document.getElementById('energy-badge').textContent = `⚡ ${Math.round(gameState.player.energy)}%`;
+  document.getElementById('player-summary').textContent = `${gameState.player.name} • ${gameState.player.pos} ${gameState.player.ovr} OVR • ${gameState.seasonStats.apps} apps ${gameState.seasonStats.goals}G • ${gameState.club.name} • ${gameState.manager.favor}% trust ${gameState.manager.favor>=85?'©':''}`;
+  const inboxCount = document.getElementById('inbox-count');
+  const unread = gameState.inbox.filter(i=>!i.read).length;
+  if(inboxCount){ inboxCount.textContent = unread; inboxCount.classList.toggle('hidden', unread===0); }
+}
+
+function renderManagerFavor(){
+  const favor = gameState.manager.favor;
+  const fill = document.getElementById('favor-fill');
+  const status = document.getElementById('favor-status');
+  if(fill) fill.style.width = favor+'%';
+  let tier='Reserve', color='bg-slate-500/20 text-slate-400 border-slate-500/30';
+  if(favor>=75){ tier='Starter'; color='bg-emerald-500/20 text-emerald-400 border-emerald-500/30'; }
+  else if(favor>=40){ tier='Substitute'; color='bg-amber-500/20 text-amber-400 border-amber-500/30'; }
+  else { tier='Reserve'; color='bg-red-500/20 text-red-400 border-red-500/30'; }
+  gameState.manager.status = tier;
+  if(status){ status.textContent = `${tier.toUpperCase()} • ${favor}%`; status.className = `text-[11px] font-bold px-2.5 py-1 rounded-full border ${color}`; }
+  const board = document.getElementById('board-confidence');
+  if(board) board.textContent = favor;
+}
+
+function renderAttributes(){
+  const list = document.getElementById('attr-list');
+  if(!list) return;
+  const attrs = gameState.player.attributes;
+  list.innerHTML = Object.entries(attrs).map(([k,v])=>`
+    <div class="glass rounded-2xl p-3 flex items-center gap-3">
+      <div class="flex-1"><div class="flex justify-between"><span class="text-[11px] tracking-widest font-bold text-slate-400">${k.toUpperCase()}</span><span class="font-mono font-bold text-[13px]">${Math.round(v)}</span></div><div class="h-1.5 bg-black/40 rounded-full mt-2 overflow-hidden"><div class="h-full bg-emerald-500" style="width:${v}%"></div></div></div>
+      <button data-train="${k}" class="w-8 h-8 rounded-full bg-white/10 border border-white/10 grid place-items-center text-[14px] hover:bg-white hover:text-black transition">+</button>
+    </div>
+  `).join('');
+  document.getElementById('attr-avatar').textContent = gameState.player.firstName[0]+gameState.player.lastName[0];
+  document.getElementById('attr-name').textContent = gameState.player.name;
+  document.getElementById('attr-meta').textContent = `${gameState.player.age}y • ${gameState.player.pos} • ${gameState.player.foot} • ${gameState.player.height}cm`;
+  document.getElementById('sp-badge').textContent = `${gameState.player.skillPoints} SP`;
+  document.getElementById('energy-fill').style.width = gameState.player.energy+'%';
+  document.getElementById('form-fill').style.width = gameState.player.form+'%';
+  // training focus active
+  document.querySelectorAll('#training-focus button').forEach(b=>{
+    const isActive = b.dataset.focus===gameState.training.focus;
+    b.className = isActive ? 'py-2 rounded-xl bg-white text-black font-bold text-[11px]' : 'py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]';
+  });
+  document.querySelectorAll('#training-intensity button').forEach(b=>{
+    const isActive = b.dataset.intensity===gameState.training.intensity;
+    b.className = isActive ? 'py-2 rounded-xl bg-white text-black font-bold text-[11px]' : 'py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]';
+  });
+  document.querySelectorAll('[data-train]').forEach(b=>{
+    b.onclick=()=>{
+      if(gameState.player.skillPoints<=0){ alert('No SP! Earn from 8+ rating matches.'); return; }
+      const attr = b.dataset.train;
+      gameState.player.attributes[attr] = Math.min(99, gameState.player.attributes[attr]+2);
+      gameState.player.skillPoints--;
+      gameState.player.ovr = Math.round(Object.values(gameState.player.attributes).reduce((a,c)=>a+c,0)/6);
+      saveGame(); renderAll();
+    };
+  });
+}
+
+function renderCareerTab(){
+  document.getElementById('career-value').textContent = `€ ${gameState.club.value}M`;
+  document.getElementById('career-wage').textContent = `€ ${gameState.club.wage}k/w`;
+  document.getElementById('career-contract').textContent = `${gameState.club.contract.toFixed(1)} yrs left`;
+  const agent = AGENTS[gameState.agent.tier];
+  document.getElementById('agent-tier').textContent = `${agent.name} • ${agent.fee}% fee`;
+  document.querySelectorAll('[data-agent]').forEach(b=>{
+    const isActive = b.dataset.agent===gameState.agent.tier;
+    b.className = isActive ? 'py-2 rounded-xl bg-white text-black font-bold text-[11px]' : 'py-2 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[11px]';
+  });
+}
+
+function renderLifestyle(){
+  document.getElementById('life-wage').textContent = `€ ${gameState.club.wage}k/w`;
+  document.getElementById('life-followers').textContent = `${(gameState.player.ovr*1000 + gameState.seasonStats.goals*500).toLocaleString()} followers`;
+  const housesList = document.getElementById('houses-list');
+  housesList.innerHTML = LIFESTYLE_DB.houses.map(h=>{
+    const owned = gameState.lifestyle.houses.includes(h.id);
+    return `<div class="glass rounded-xl p-3 flex justify-between items-center"><div><div class="font-bold text-[13px]">${h.icon} ${h.name}</div><div class="text-[11px] text-slate-400">€${h.price}k • Morale +${h.morale}</div></div><button data-buy="house:${h.id}" class="px-3 py-1.5 rounded-full text-[11px] font-bold ${owned?'bg-emerald-500 text-black':'bg-white text-black'}">${owned?'OWNED':'BUY'}</button></div>`;
+  }).join('');
+  const carsList = document.getElementById('cars-list');
+  carsList.innerHTML = LIFESTYLE_DB.cars.map(c=>{
+    const owned = gameState.lifestyle.cars.includes(c.id);
+    return `<div class="glass rounded-xl p-3 flex justify-between items-center"><div><div class="font-bold text-[13px]">${c.icon} ${c.name}</div><div class="text-[11px] text-slate-400">€${c.price}k • Morale +${c.morale}</div></div><button data-buy="car:${c.id}" class="px-3 py-1.5 rounded-full text-[11px] font-bold ${owned?'bg-emerald-500 text-black':'bg-white text-black'}">${owned?'OWNED':'BUY'}</button></div>`;
+  }).join('');
+  const investList = document.getElementById('invest-list');
+  investList.innerHTML = LIFESTYLE_DB.investments.map(i=>{
+    const owned = gameState.lifestyle.investments.includes(i.id);
+    return `<div class="glass rounded-xl p-3 flex justify-between items-center"><div><div class="font-bold text-[13px]">${i.icon} ${i.name}</div><div class="text-[11px] text-slate-400">€${i.price}k • ${i.desc}</div></div><button data-buy="inv:${i.id}" class="px-3 py-1.5 rounded-full text-[11px] font-bold ${owned?'bg-emerald-500 text-black':'bg-white text-black'}">${owned?'OWNED':'INVEST'}</button></div>`;
+  }).join('');
+  document.querySelectorAll('[data-buy]').forEach(b=>{
+    b.onclick=()=>{
+      const [type,id] = b.dataset.buy.split(':');
+      const db = type==='house'?LIFESTYLE_DB.houses : type==='car'?LIFESTYLE_DB.cars : LIFESTYLE_DB.investments;
+      const item = db.find(x=>x.id===id);
+      if(!item) return;
+      if(gameState.lifestyle[type+'s'].includes(id)){ alert('Already owned'); return; }
+      if(gameState.lifestyle.cash < item.price){ alert(`Need €${item.price}k, have €${gameState.lifestyle.cash}k`); return; }
+      gameState.lifestyle.cash -= item.price;
+      gameState.lifestyle[type+'s'].push(id);
+      gameState.player.morale = Math.min(99, gameState.player.morale + (item.morale||2));
+      gameState.club.bank = gameState.lifestyle.cash/1000;
+      saveGame(); renderAll();
+    };
+  });
+}
+
+function renderHub(){
+  const container = document.getElementById('hub-cards');
+  if(!container) return;
+  const cards = [
+    { title:'SEASON RESULTS', desc:'View the current season results across all competitions and leagues.', img:'🏆', action:'View standings', id:'standings' },
+    { title:'GOAL BREAKDOWN', desc:'Analyze your goal distribution and performance metrics.', img:'📊', action:'View stats', id:'stats' },
+    { title:'GLOBAL STATS', desc:'Explore global statistics for teams and players across all seasons.', img:'🌍', action:'View', id:'global' },
+    { title:'RANKINGS', desc:'Check the global rankings of teams and players worldwide.', img:'🥇 2nd / 508', action:'View', id:'rankings' },
+    { title:'SEARCH ZONE', desc:'Search manually for any team, player or competition in the database.', img:'🔍', action:'View', id:'search' },
+  ];
+  container.innerHTML = cards.map(c=>`
+    <div class="glass rounded-[18px] overflow-hidden">
+      <div class="h-28 bg-gradient-to-br from-slate-800 to-slate-900 grid place-items-center text-[32px]">${c.img}</div>
+      <div class="p-4"><div class="font-black text-[12px] tracking-widest">${c.title}</div><div class="text-[11px] text-slate-400 mt-1 leading-relaxed">${c.desc}</div><button data-hub="${c.id}" class="mt-3 px-5 py-2 rounded-full bg-white text-black font-bold text-[11px] tracking-widest">VIEW</button></div>
+    </div>
+  `).join('');
+  container.querySelectorAll('[data-hub]').forEach(b=>{
+    b.onclick=()=>{
+      const id=b.dataset.hub;
+      if(id==='standings') showStandings();
+      else if(id==='stats') showStats();
+      else if(id==='rankings') showRankings();
+      else alert(`${id} — Coming soon! Full 100 leagues + UCL/Libertadores brackets in Hub.`);
+    };
+  });
+}
+
+function renderAll(){
+  renderCalendar(); renderForm(); renderFinances(); renderManagerFavor();
+  renderAttributes(); renderCareerTab(); renderLifestyle(); renderHub();
+  // Update last match
+  const lastCard = document.getElementById('last-match-card');
+  const lastContent = document.getElementById('last-match-content');
+  if(gameState.matches.length>0 && lastCard && lastContent){
+    const m = gameState.matches[0];
+    lastCard.classList.remove('hidden');
+    lastContent.innerHTML = `<b>${m.competition}</b> ${m.home?'vs':'@'} ${m.opponentName} <span class="ml-2 px-2 py-0.5 rounded-full text-[10px] font-bold ${m.result==='W'?'bg-emerald-500/20 text-emerald-400':m.result==='D'?'bg-amber-500/20 text-amber-400':'bg-red-500/20 text-red-400'}">${m.result} ${m.teamGoals}-${m.opponentGoals}</span><br><span class="text-[11px] text-slate-400">Rating ${m.rating} • ${m.goals}G ${m.assists}A • ${m.minutes}' • xG ${m.xG}</span>`;
+  }
+}
+
+// ===== MATCH SIMULATION ENGINE =====
+function simulateMatch(){
+  const fixture = gameState.fixtures.find(f=>!f.played);
+  if(!fixture){ alert('Season finished!'); return null; }
+  const opp = CLUBS.find(c=>c.id===fixture.opponent);
+  const oppStrength = opp ? opp.prestige + (Math.random()*10-5) : 65 + Math.random()*20;
+  const playerStrength = gameState.player.ovr + (Object.values(gameState.player.attributes).reduce((a,b)=>a+b,0)/6 -70)*0.3 + (gameState.player.form-65)*0.1 + (gameState.player.energy-80)*0.05 + (gameState.manager.favor-50)*0.05;
+  const diff = playerStrength - oppStrength;
+
+  let teamGoals = Math.max(0, Math.round(1.2 + diff*0.04 + (Math.random()-0.5) + playerStrength*0.01));
+  let oppGoals = Math.max(0, Math.round(1.2 - diff*0.04 + (Math.random()-0.5)));
+
+  let minutes = 90;
+  if(gameState.player.energy<60) minutes = 60 + Math.floor(Math.random()*20);
+  if(gameState.manager.favor<40 && Math.random()<0.5) minutes = 30 + Math.floor(Math.random()*30); // Reserve = less mins
+  else if(gameState.manager.favor>=75) minutes = 85+Math.floor(Math.random()*6);
+
+  const isGK = gameState.player.pos==='GK';
+  let goals=0, assists=0, rating=6.0;
+
+  if(minutes>0){
+    rating = 6.0 + diff*0.08 + (Math.random()*1-0.5) + (gameState.player.energy-70)*0.02;
+    if(isGK){
+      const saves = Math.floor(Math.random()*5)+2;
+      if(oppGoals===0) rating+=0.8;
+      rating+= saves*0.1;
+    } else {
+      const goalProb = ({ST:0.35,LW:0.22,RW:0.22,CM:0.12,CB:0.05}[gameState.player.pos]||0.15) * (gameState.player.attributes.shooting/80) * (minutes/90);
+      for(let i=0;i<teamGoals;i++) if(Math.random()<goalProb*1.5) goals++;
+      const assistProb = 0.25 * (gameState.player.attributes.passing/80) * (minutes/90);
+      for(let i=0;i<teamGoals-goals;i++) if(Math.random()<assistProb) assists++;
+      if(goals>0) rating+=goals*0.9;
+      if(assists>0) rating+=assists*0.5;
+      if(teamGoals>oppGoals) rating+=0.3; else if(teamGoals<oppGoals) rating-=0.4;
+    }
+    rating = Math.max(4.0, Math.min(10, Math.round(rating*10)/10));
+  } else rating=0;
+
+  // Energy drain
+  gameState.player.energy = Math.max(0, gameState.player.energy - (12+Math.random()*6));
+  if(gameState.player.energy<20) gameState.player.fitness = Math.max(30, gameState.player.fitness-5);
+
+  // Wage distribution
+  gameState.lifestyle.cash += gameState.club.wage;
+  gameState.club.bank = gameState.lifestyle.cash/1000;
+  gameState.club.profit = gameState.club.wage*52/1000 - 200 + Math.floor(Math.random()*40-20);
+
+  // Manager Favor update
+  let favorDelta=0;
+  if(rating>=8.5) favorDelta+=8; else if(rating>=7.5) favorDelta+=4; else if(rating>=7.0) favorDelta+=2; else if(rating<=5.5) favorDelta-=8; else if(rating<=6.0) favorDelta-=4;
+  if(goals>=2) favorDelta+=6; else if(goals===1) favorDelta+=3;
+  if(assists>=2) favorDelta+=4;
+  gameState.manager.favor = Math.max(0, Math.min(100, gameState.manager.favor + favorDelta));
+
+  // Form update
+  gameState.form.unshift(rating>=7?'W':rating>=6?'D':'L'); if(gameState.form.length>5) gameState.form.pop();
+  gameState.player.form = Math.max(20, Math.min(99, gameState.player.form + (rating-6.5)*2));
+
+  const result = teamGoals>oppGoals?'W':teamGoals===oppGoals?'D':'L';
+  const match = {
+    date: fixture.date.toISOString().slice(0,10), competition: fixture.comp, opponent: fixture.opponent,
+    opponentName: fixture.opponentName, home: fixture.home, teamGoals, opponentGoals, result,
+    minutes, goals, assists, rating, xG: (0.8+Math.random()*1.2).toFixed(2), motm: rating>=8.5
+  };
+  fixture.played=true; fixture.result=match;
+  gameState.matches.unshift(match);
+  gameState.seasonStats.apps += minutes>0?1:0;
+  gameState.seasonStats.goals += goals;
+  gameState.seasonStats.assists += assists;
+  gameState.seasonStats.minutes += minutes;
+  if(rating>0){
+    const total = gameState.matches.filter(m=>m.rating>0).reduce((s,m)=>s+m.rating,0);
+    gameState.seasonStats.rating = total / gameState.matches.filter(m=>m.rating>0).length;
+  }
+  if(rating>=8.0){ gameState.player.skillPoints++; }
+  if(goals>=2) gameState.player.skillPoints++;
+
+  gameState.calendar.week++;
+  gameState.calendar.day += 7; if(gameState.calendar.day>30){ gameState.calendar.day-=30; gameState.calendar.month = gameState.calendar.month==='July'?'August':'September'; }
+
+  // Low energy warning
+  if(gameState.player.energy<30){
+    gameState.inbox.unshift({ id:Date.now(), from:'Physio', subject:'Low Energy!', body:`Energy ${Math.round(gameState.player.energy)}% — rest or train low intensity. High training risks injury.`, date:new Date().toISOString().slice(0,10), read:false });
+  }
+
+  return match;
+}
+
+function showMatchModal(match){
+  const root = document.getElementById('modal-root');
+  root.classList.remove('pointer-events-none'); root.classList.add('pointer-events-auto');
+  root.innerHTML = `
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-md grid place-items-center p-4" id="modal-bg">
+      <div class="glass rounded-[20px] w-full max-w-[360px] overflow-hidden animate-[float_0.3s_ease]">
+        <div class="p-4 flex justify-between items-center border-b border-white/10">
+          <h3 class="font-bold text-[14px]">${match.competition} • ${match.home?'vs':'@'} ${match.opponentName}</h3>
+          <span class="w-8 h-8 rounded-full grid place-items-center font-black text-[12px] ${match.result==='W'?'bg-emerald-500 text-white':match.result==='D'?'bg-amber-400 text-black':'bg-red-500 text-white'}">${match.result}</span>
+        </div>
+        <div class="p-4">
+          <div class="flex justify-between items-center"><span class="text-[28px] font-black">${match.teamGoals} - ${match.opponentGoals}</span><div class="text-right"><div class="text-[20px] font-black ${match.rating>=7.5?'text-emerald-400':match.rating>=6?'text-white':'text-red-400'}">${match.rating}</div><div class="text-[10px] text-slate-400 font-mono">RATING ${match.motm?'• MOTM 🌟':''} • xG ${match.xG}</div></div></div>
+          <div class="grid grid-cols-4 gap-2 mt-4">
+            <div class="bg-black/20 rounded-xl p-2 text-center"><div class="text-[9px] text-slate-400 tracking-widest">MIN</div><div class="font-bold">${match.minutes}'</div></div>
+            <div class="bg-black/20 rounded-xl p-2 text-center"><div class="text-[9px] text-slate-400 tracking-widest">GOALS</div><div class="font-bold">${match.goals}</div></div>
+            <div class="bg-black/20 rounded-xl p-2 text-center"><div class="text-[9px] text-slate-400 tracking-widest">ASSISTS</div><div class="font-bold">${match.assists}</div></div>
+            <div class="bg-black/20 rounded-xl p-2 text-center"><div class="text-[9px] text-slate-400 tracking-widest">ENERGY</div><div class="font-bold">-${12+Math.floor(Math.random()*6)}%</div></div>
+          </div>
+          <div class="mt-3 text-[11px] text-slate-400 font-mono">Wage +€${gameState.club.wage}k → Bank €${gameState.club.bank.toFixed(1)}M • Energy now ${Math.round(gameState.player.energy)}% • Favor ${gameState.manager.favor>=75?'+':''}${gameState.manager.favor-55}%</div>
+        </div>
+        <div class="p-3 border-t border-white/10"><button id="modal-continue" class="w-full py-3 rounded-full bg-white text-black font-black tracking-widest text-[12px]">CONTINUE</button></div>
+      </div>
+    </div>
+  `;
+  document.getElementById('modal-continue').onclick=()=>{ root.innerHTML=''; root.classList.add('pointer-events-none'); renderAll(); };
+  document.getElementById('modal-bg').onclick=e=>{ if(e.target.id==='modal-bg'){ root.innerHTML=''; root.classList.add('pointer-events-none'); renderAll(); } };
+}
+
+function showStandings(){
+  const root = document.getElementById('modal-root');
+  root.classList.remove('pointer-events-none'); root.classList.add('pointer-events-auto');
+  const table = CLUBS.map((c,i)=>({ pos:i+1, club:c, pl:5, w:3, d:1, l:1, pts:10-i }));
+  root.innerHTML = `<div class="absolute inset-0 bg-black/70 backdrop-blur-md grid place-items-center p-4" id="modal-bg"><div class="glass rounded-2xl w-full max-w-[380px] max-h-[80vh] overflow-auto"><div class="p-4 flex justify-between items-center border-b border-white/10 sticky top-0 bg-[#111f35]"><h3 class="font-bold">STANDINGS • LaLiga</h3><button id="modal-close" class="w-8 h-8 rounded-full bg-white/10">✕</button></div><div class="p-0"><table class="w-full text-[12px]"><thead><tr class="text-[10px] text-slate-400 font-mono"><th class="p-2">#</th><th class="p-2">Club</th><th class="p-2">Pl</th><th class="p-2">Pts</th></tr></thead><tbody>${table.map(t=>`<tr class="border-b border-white/5 ${t.club.id===gameState.club.id?'bg-emerald-500/10':''}"><td class="p-2">${t.pos}</td><td class="p-2 font-bold">${t.club.name} ${t.club.id===gameState.club.id?'←You':''}</td><td class="p-2">${t.pl}</td><td class="p-2 font-bold">${t.pts}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+  document.getElementById('modal-close').onclick=()=>{ root.innerHTML=''; root.classList.add('pointer-events-none'); };
+  document.getElementById('modal-bg').onclick=e=>{ if(e.target.id==='modal-bg'){ root.innerHTML=''; root.classList.add('pointer-events-none'); } };
+}
+
+function showStats(){
+  const root = document.getElementById('modal-root');
+  root.classList.remove('pointer-events-none'); root.classList.add('pointer-events-auto');
+  root.innerHTML = `<div class="absolute inset-0 bg-black/70 backdrop-blur-md grid place-items-center p-4" id="modal-bg"><div class="glass rounded-2xl w-full max-w-[360px]"><div class="p-4 flex justify-between items-center border-b border-white/10"><h3 class="font-bold">GOAL BREAKDOWN</h3><button id="modal-close" class="w-8 h-8 rounded-full bg-white/10">✕</button></div><div class="p-4"><div class="grid grid-cols-2 gap-3 text-[12px]"><div class="bg-black/20 rounded-xl p-3"><div class="text-slate-400 text-[10px]">TOTAL GOALS</div><div class="font-black text-[20px]">${gameState.seasonStats.goals}</div></div><div class="bg-black/20 rounded-xl p-3"><div class="text-slate-400 text-[10px]">ASSISTS</div><div class="font-black text-[20px]">${gameState.seasonStats.assists}</div></div><div class="bg-black/20 rounded-xl p-3"><div class="text-slate-400 text-[10px]">APPS</div><div class="font-black text-[20px]">${gameState.seasonStats.apps}</div></div><div class="bg-black/20 rounded-xl p-3"><div class="text-slate-400 text-[10px]">AVG RATING</div><div class="font-black text-[20px]">${gameState.seasonStats.rating?.toFixed(2)||'-'}</div></div></div><div class="mt-4 h-2 bg-black/30 rounded-full overflow-hidden"><div class="h-full bg-emerald-500" style="width:${Math.min(100, gameState.seasonStats.goals*10)}%"></div></div></div></div></div>`;
+  document.getElementById('modal-close').onclick=()=>{ root.innerHTML=''; root.classList.add('pointer-events-none'); };
+  document.getElementById('modal-bg').onclick=e=>{ if(e.target.id==='modal-bg'){ root.innerHTML=''; root.classList.add('pointer-events-none'); } };
+}
+
+function showRankings(){
+  const root = document.getElementById('modal-root');
+  root.classList.remove('pointer-events-none'); root.classList.add('pointer-events-auto');
+  const rankings = [
+    { name:'Kylian Mbappé', club:'Real Madrid', ovr:94, goals:38 },
+    { name:'Erling Haaland', club:'Man City', ovr:93, goals:42 },
+    { name: gameState.player.name+' (You)', club:gameState.club.name, ovr:gameState.player.ovr, goals:gameState.seasonStats.goals, isPlayer:true },
+  ].sort((a,b)=>b.goals-a.goals);
+  root.innerHTML = `<div class="absolute inset-0 bg-black/70 backdrop-blur-md grid place-items-center p-4" id="modal-bg"><div class="glass rounded-2xl w-full max-w-[360px]"><div class="p-4 flex justify-between items-center border-b border-white/10"><h3 class="font-bold">RANKINGS • Global</h3><button id="modal-close" class="w-8 h-8 rounded-full bg-white/10">✕</button></div><div class="p-0"><table class="w-full text-[12px]"><thead><tr class="text-[10px] text-slate-400"><th class="p-3">Rank</th><th class="p-3">Player</th><th class="p-3">Goals</th></tr></thead><tbody>${rankings.map((r,i)=>`<tr class="border-b border-white/5 ${r.isPlayer?'bg-emerald-500/10 font-bold':''}"><td class="p-3">${i+1} ${i===0?'🏆':''}</td><td class="p-3">${r.name}<br><span class="text-[10px] text-slate-400">${r.club} • ${r.ovr} OVR</span></td><td class="p-3 font-black">${r.goals}</td></tr>`).join('')}</tbody></table></div></div></div>`;
+  document.getElementById('modal-close').onclick=()=>{ root.innerHTML=''; root.classList.add('pointer-events-none'); };
+  document.getElementById('modal-bg').onclick=e=>{ if(e.target.id==='modal-bg'){ root.innerHTML=''; root.classList.add('pointer-events-none'); } };
+}
+
+function showInbox(){
+  const root = document.getElementById('modal-root');
+  root.classList.remove('pointer-events-none'); root.classList.add('pointer-events-auto');
+  root.innerHTML = `<div class="absolute inset-0 bg-black/70 backdrop-blur-md grid place-items-center p-4" id="modal-bg"><div class="glass rounded-2xl w-full max-w-[360px] max-h-[80vh] flex flex-col"><div class="p-4 flex justify-between items-center border-b border-white/10"><h3 class="font-bold">MESSAGES • ${gameState.inbox.length}</h3><button id="modal-close" class="w-8 h-8 rounded-full bg-white/10">✕</button></div><div class="flex-1 overflow-auto p-3 grid gap-2">${gameState.inbox.map(m=>`<div class="bg-black/20 rounded-xl p-3 ${!m.read?'border border-white/10':''}"><div class="text-[10px] font-mono text-emerald-400">${m.from} • ${m.date}</div><div class="font-bold text-[13px] mt-1">${m.subject}</div><div class="text-[11px] text-slate-400 mt-1">${m.body}</div></div>`).join('') || '<div class="text-slate-500 text-[12px] text-center py-8">No messages</div>'}</div></div></div>`;
+  document.getElementById('modal-close').onclick=()=>{ root.innerHTML=''; root.classList.add('pointer-events-none'); gameState.inbox.forEach(i=>i.read=true); saveGame(); renderAll(); };
+  document.getElementById('modal-bg').onclick=e=>{ if(e.target.id==='modal-bg'){ root.innerHTML=''; root.classList.add('pointer-events-none'); } };
+}
+
+// ===== TAB SWITCHING =====
+function switchTab(tab){
+  document.querySelectorAll('[id^=\"tab-\"]').forEach(el=>el.classList.add('hidden'));
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    const isActive = b.dataset.tab===tab;
+    b.className = isActive ? 'tab-btn flex flex-col items-center gap-1 py-2 rounded-xl bg-white text-black' : 'tab-btn flex flex-col items-center gap-1 py-2 rounded-xl text-slate-500';
+  });
+  // save last tab
+  gameState._lastTab = tab;
+}
+
+// ===== EVENT BINDINGS =====
+document.addEventListener('DOMContentLoaded', ()=>{
+  loadGame();
+  initFixtures();
+
+  // Landing
+  document.getElementById('btn-new-game').onclick=()=>{
+    document.getElementById('screen-landing').classList.add('hidden');
+    document.getElementById('screen-create').classList.remove('hidden');
+    document.getElementById('screen-create').classList.add('flex');
+  };
+  document.getElementById('btn-load-game').onclick=()=>{
+    const saved = localStorage.getItem('footlord_simple_save');
+    if(!saved){ alert('No save found! Start New Game.'); return; }
+    loadGame();
+    document.getElementById('screen-landing').classList.add('hidden');
+    document.getElementById('screen-game').classList.remove('hidden');
+    document.getElementById('screen-game').classList.add('flex');
+    renderAll();
+  };
+  document.getElementById('btn-create-back').onclick=()=>{
+    document.getElementById('screen-create').classList.add('hidden');
+    document.getElementById('screen-landing').classList.remove('hidden');
+  };
+
+  // Position selector
+  document.querySelectorAll('.pos-btn').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('.pos-btn').forEach(x=>x.className='pos-btn py-2.5 rounded-xl bg-slate-800 border border-white/10 text-slate-400 font-bold text-[12px]');
+      b.className='pos-btn py-2.5 rounded-xl bg-emerald-500 text-black font-bold text-[12px]';
+      gameState.player.pos = b.dataset.pos;
+      document.getElementById('preview-meta').textContent = `${gameState.player.country} • ${gameState.player.age}y • ${gameState.player.pos} • ${gameState.player.ovr} OVR`;
+    };
+  });
+
+  // Create inputs
+  ['inp-first','inp-last','inp-age','inp-country'].forEach(id=>{
+    const el = document.getElementById(id);
+    if(el) el.oninput = ()=>{
+      const first = document.getElementById('inp-first').value || 'Ashim';
+      const last = document.getElementById('inp-last').value || 'Kunwar';
+      const age = document.getElementById('inp-age').value || 17;
+      const country = document.getElementById('inp-country').value || 'NEP';
+      gameState.player.firstName=first; gameState.player.lastName=last; gameState.player.name=first+' '+last;
+      gameState.player.age=parseInt(age); gameState.player.country=country;
+      document.getElementById('preview-name').textContent = gameState.player.name;
+      document.getElementById('preview-avatar').textContent = first[0]+last[0];
+      document.getElementById('preview-meta').textContent = `${country} • ${age}y • ${gameState.player.pos} • ${gameState.player.ovr} OVR`;
+    };
+  });
+
+  document.getElementById('btn-start-career').onclick=()=>{
+    const club = CLUBS.find(c=>c.country==='Spain') || CLUBS[0];
+    gameState.club.id=club.id; gameState.club.name=club.name; gameState.club.league=club.league;
+    gameState.player.ovr = 60 + Math.floor(Math.random()*10);
+    initFixtures();
+    saveGame();
+    document.getElementById('screen-create').classList.add('hidden');
+    document.getElementById('screen-game').classList.remove('hidden');
+    document.getElementById('screen-game').classList.add('flex');
+    renderAll();
+  };
+
+  // Bottom nav
+  document.querySelectorAll('.tab-btn').forEach(b=>{
+    b.onclick=()=>switchTab(b.dataset.tab);
+  });
+
+  // Home actions
+  document.querySelectorAll('[data-go]').forEach(b=>{
+    b.onclick=()=>{
+      if(b.dataset.go==='standings') showStandings();
+      else if(b.dataset.go==='social') switchTab('hub');
+      else if(b.dataset.go==='inbox') showInbox();
+    };
+  });
+
+  // Proceed
+  const proceedBtn = document.getElementById('btn-proceed');
+  if(proceedBtn){
+    proceedBtn.onclick=()=>{
+      if(gameState.player.energy<=0){ alert('Energy depleted! Rest: train LOW intensity or buy house for morale boost.'); return; }
+      const match = simulateMatch();
+      if(match){ saveGame(); showMatchModal(match); }
+    };
+  }
+
+  // Career tab agents
+  document.querySelectorAll('[data-agent]').forEach(b=>{
+    b.onclick=()=>{
+      gameState.agent.tier = b.dataset.agent;
+      saveGame(); renderAll();
+    };
+  });
+
+  // Training focus/intensity
+  document.querySelectorAll('#training-focus button').forEach(b=>{
+    b.onclick=()=>{ gameState.training.focus=b.dataset.focus; saveGame(); renderAll(); };
+  });
+  document.querySelectorAll('#training-intensity button').forEach(b=>{
+    b.onclick=()=>{ gameState.training.intensity=b.dataset.intensity; saveGame(); renderAll(); };
+  });
+
+  document.getElementById('btn-request-transfer').onclick=()=>{
+    const interested = CLUBS.filter(c=>c.id!==gameState.club.id).sort(()=>0.5-Math.random()).slice(0,1)[0];
+    if(confirm(`Request transfer to ${interested.name}? Fee ${AGENTS[gameState.agent.tier].fee}%`)){
+      gameState.club.id=interested.id; gameState.club.name=interested.name;
+      gameState.manager.favor=60; gameState.club.contract=4.0;
+      initFixtures();
+      saveGame(); renderAll(); alert(`Transferred to ${interested.name}!`);
+    }
+  };
+
+  document.getElementById('btn-exit-game').onclick=()=>{
+    if(confirm('Exit to menu? Auto-saved.')){ saveGame(); document.getElementById('screen-game').classList.add('hidden'); document.getElementById('screen-landing').classList.remove('hidden'); }
+  };
+
+  renderAll();
+});
+</script>
+</body>
+</html>
